@@ -46,18 +46,19 @@
       content: '';
       display: block;
       position: absolute;
-      background: @color-x-zombie;
-      top: 15px;
+      border: 10px solid @color-x-zombie;
+      border-radius: 20px;
+      width: 20px;
+      height: 10px;
+      top: 10px;
       left: 5px;
-      width: 40px;
-      height: 20px;
-      border-radius: 10px;
     }
+
   }
 
   &.state-3 {
     &:before, &:after {
-      border: 1px solid @color-x;
+      background: @color-x;
     }
   }
 
@@ -80,18 +81,20 @@
       content: '';
       display: block;
       position: absolute;
-      border: 10px solid @color-o-zombie;
-      border-radius: 20px;
-      width: 20px;
-      height: 10px;
-      top: 10px;
+      background: @color-o-zombie;
+      top: 15px;
       left: 5px;
+      width: 40px;
+      height: 20px;
+      border-radius: 10px;
     }
   }
 
   &.state-11 {
     &:before, &:after {
-      background: @color-o;
+      border: 6px solid @color-o;
+      width: 28px;
+      height: 8px;
     }
   }
 
@@ -106,7 +109,7 @@
 .player-1 {
   .cell {
     &.state-1 {
-      box-shadow:  0 0 4px 1px @color-x inset;
+      box-shadow: 0 0 4px 1px @color-x inset;
       //border-color: @color-x;
       &:hover {
         &:before, &:after {
@@ -140,8 +143,8 @@
       }
     }
 
-    &.state-13{
-      box-shadow:  0 0 4px 1px @color-x inset;
+    &.state-13 {
+      box-shadow: 0 0 4px 1px @color-x inset;
     }
   }
 }
@@ -149,7 +152,7 @@
 .player-2 {
   .cell {
     &.state-9 {
-      box-shadow:  0 0 4px 1px @color-o inset;
+      box-shadow: 0 0 4px 1px @color-o inset;
       &:hover {
         &:before {
           content: '';
@@ -181,8 +184,8 @@
         border: none;
       }
     }
-    &.state-5{
-      box-shadow:  0 0 4px 1px @color-o inset;
+    &.state-5 {
+      box-shadow: 0 0 4px 1px @color-o inset;
     }
 
   }

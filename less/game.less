@@ -55,6 +55,12 @@
     }
   }
 
+  &.state-3 {
+    &:before, &:after {
+      border: 1px solid @color-x;
+    }
+  }
+
   &.state-12, &.state-13 {
     &:before {
       content: '';
@@ -82,6 +88,13 @@
       left: 5px;
     }
   }
+
+  &.state-11 {
+    &:before, &:after {
+      background: @color-o;
+    }
+  }
+
   &:before {
     transform: rotate(45deg);
   }

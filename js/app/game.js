@@ -130,6 +130,7 @@ var Board = React.createClass({
                         vv.push([i, j]);
                         break;
                     case player_cell.TARGET:
+                        vv.push([i, j]);
                         newCellState = player_cell.ALIVE;
                         break;
                     case player_cell.ZOMBIE:
@@ -153,21 +154,22 @@ var Board = React.createClass({
                 cells[i][j] = newCellState;
             }
         }
+        //console.log('refresh cells', this.props.player, vv);
         // update neighbours
         var zz_c = [], zz_c_new = [],
             stateToState = {};
         stateToState[GAME_CONSTANTS.CELL_STATE.EMPTY.toString()] = player_cell.AVAILABLE;
         stateToState[player_cell.ZOMBIE.toString()] = player_cell.ZOMBIE_CONNECTED;
         stateToState[enemy_cell.ALIVE.toString()] = enemy_cell.TARGET;
-
+        //console.log(stateToState);
         var updateNeighbours = function (ix, jx, stateToState, zzc = [], zzc_new = []) {
             for (i = Math.max(ix - 1, 0); i < Math.min(ix + 2, GAME_CONSTANTS.N); i++) {
                 for (j = Math.max(jx - 1, 0); j < Math.min(jx + 2, GAME_CONSTANTS.N); j++) {
                     //console.log(i, j);
                     if ((i == ix) && (j == jx)) {
+                        console.log(i, ix, j, jx);
                         continue;
                     }
-
                     if (stateToState.hasOwnProperty(cells[i][j].toString())) {
                         cells[i][j] = stateToState[cells[i][j].toString()];
                     }

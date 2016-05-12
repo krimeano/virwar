@@ -7,16 +7,20 @@ var GAME_CONSTANTS = {
     },
     CELL_STATE: {
         EMPTY: 0,
-        X_AVAILABLE: 0b0001,
-        X_ZOMBIE: 0b0010,
-        X_ZOMBIE_CONNECTED: 0b0011,
-        X: 0b0100,
-        X_TARGET: 0b0101,
-        O_AVAILABLE: 0b1001,
-        O_ZOMBIE: 0b1010,
-        O_ZOMBIE_CONNECTED: 0b1011,
-        O: 0b1100,
-        O_TARGET: 0b1101
+        X: {
+            AVAILABLE: 0b0001, //1
+            ZOMBIE: 0b0010, //2
+            ZOMBIE_CONNECTED: 0b0011, //3
+            ALIVE: 0b0100, //4
+            TARGET: 0b0101 //5
+        },
+        O: {
+            AVAILABLE: 0b1001, //9
+            ZOMBIE: 0b1010, //10
+            ZOMBIE_CONNECTED: 0b1011, //11
+            ALIVE: 0b1100, //12
+            TARGET: 0b1101 //13
+        }
     },
     N: 10,
     W: 50,
@@ -53,9 +57,17 @@ var Game = React.createClass({
         }
     },
     render: function () {
+        var pp = ['', 'X', 'O'],
+            cell_states = {
+                player: GAME_CONSTANTS.CELL_STATE[pp[this.state.currentPlayer]],
+                enemy: GAME_CONSTANTS.CELL_STATE[pp[3 - this.state.currentPlayer]]
+            };
+
         return (
             <div className="game">
-                <Board player={this.state.currentPlayer} onTurnHaveBeenDone={this.handleTurnHaveBeenDone}/>
+                <Board player={this.state.currentPlayer} onTurnHaveBeenDone={this.handleTurnHaveBeenDone}
+                       cell_states={cell_states}
+                />
                 <Info player={this.state.currentPlayer} turns={this.state.turns.length}/>
                 <input type="button" onClick={this.handlePass} value="Pass" disabled={this.state.turns.length > 0}/>
             </div>
@@ -65,7 +77,6 @@ var Game = React.createClass({
 
 
 var Board = React.createClass({
-
     getInitialState: function () {
         var cells = [], row;
         for (let i = 0; i < GAME_CONSTANTS.N; i++) {
@@ -75,9 +86,9 @@ var Board = React.createClass({
             }
             cells.push(row);
         }
-        cells[0][0] = GAME_CONSTANTS.CELL_STATE.X_AVAILABLE;
+        cells[0][0] = GAME_CONSTANTS.CELL_STATE.X.AVAILABLE;
 
-        cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] = GAME_CONSTANTS.CELL_STATE.O_AVAILABLE;
+        cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] = GAME_CONSTANTS.CELL_STATE.O.AVAILABLE;
         return {
             cells: cells
         };
@@ -85,92 +96,69 @@ var Board = React.createClass({
     handleCellClick: function (i, j, state) {
         var newCellState,
             cells = this.state.cells;
-        switch (this.props.player) {
-            case GAME_CONSTANTS.PLAYER.X:
-                switch (state) {
-                    case GAME_CONSTANTS.CELL_STATE.X_AVAILABLE:
-                        newCellState = GAME_CONSTANTS.CELL_STATE.X;
-                        break;
-                    case GAME_CONSTANTS.CELL_STATE.O_TARGET:
-                        newCellState = GAME_CONSTANTS.CELL_STATE.X_ZOMBIE;
-                        break;
-                }
+        switch (state) {
+            case this.props.cell_states.player.AVAILABLE:
+                newCellState = this.props.cell_states.player.ALIVE;
                 break;
-            case GAME_CONSTANTS.PLAYER.O:
-                switch (state) {
-                    case GAME_CONSTANTS.CELL_STATE.O_AVAILABLE:
-                        newCellState = GAME_CONSTANTS.CELL_STATE.O;
-                        break;
-                    case GAME_CONSTANTS.CELL_STATE.X_TARGET:
-                        newCellState = GAME_CONSTANTS.CELL_STATE.O_ZOMBIE;
-                        break;
-                }
+            case this.props.cell_states.enemy.TARGET:
+                newCellState = this.props.cell_states.player.ZOMBIE;
                 break;
         }
         if (newCellState) {
+            //console.log(cells[i][j], '=>', newCellState);
             cells[i][j] = newCellState;
             this.setState({cells: cells});
             this.props.onTurnHaveBeenDone(i, j);
-            this.refreshAvailableCells();
         }
         //console.log("cell clicked", arguments);
     },
     refreshAvailableCells: function () {
-        var cells = this.state.cells, newCellState,
-            i, j,
-            xx = [], xxz = [], oo = [], ooz = [];
+        //console.log('refresh cells', this.props.player);
+        var player_cell = this.props.cell_states.player,
+            enemy_cell = this.props.cell_states.enemy,
+            cells = this.state.cells,
+            vv = [],
+            zz = [],
+            newCellState, i, j;
 
         //reset all cells
         for (i = 0; i < GAME_CONSTANTS.N; i++) {
             for (j = 0; j < GAME_CONSTANTS.N; j++) {
                 newCellState = cells[i][j];
                 switch (cells[i][j]) {
-                    case GAME_CONSTANTS.CELL_STATE.X:
-                        xx.push([i, j]);
+                    case player_cell.ALIVE:
+                        vv.push([i, j]);
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.X_TARGET:
-                        newCellState = GAME_CONSTANTS.CELL_STATE.X;
+                    case player_cell.TARGET:
+                        newCellState = player_cell.ALIVE;
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.X_ZOMBIE:
-                        xxz.push([i, j]);
+                    case player_cell.ZOMBIE:
+                        zz.push([i, j]);
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.X_ZOMBIE_CONNECTED:
-                        xxz.push([i, j]);
-                        newCellState = GAME_CONSTANTS.CELL_STATE.X_ZOMBIE;
+                    case player_cell.ZOMBIE_CONNECTED:
+                        zz.push([i, j]);
+                        newCellState = player_cell.ZOMBIE;
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.O:
-                        oo.push([i, j]);
+                    case enemy_cell.TARGET:
+                        newCellState = enemy_cell.ALIVE;
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.O_TARGET:
-                        oo.push([i, j]);
-                        newCellState = GAME_CONSTANTS.CELL_STATE.O;
+                    case enemy_cell.ZOMBIE_CONNECTED:
+                        newCellState = enemy_cell.ZOMBIE;
                         break;
-                    case GAME_CONSTANTS.CELL_STATE.O_ZOMBIE:
-                        ooz.push([i, j]);
-                        break;
-                    case GAME_CONSTANTS.CELL_STATE.O_ZOMBIE_CONNECTED:
-                        ooz.push([i, j]);
-                        newCellState = GAME_CONSTANTS.CELL_STATE.O_ZOMBIE;
-                        break;
-                    case GAME_CONSTANTS.CELL_STATE.X_AVAILABLE:
-                    case GAME_CONSTANTS.CELL_STATE.O_AVAILABLE:
+                    case player_cell.AVAILABLE:
+                    case enemy_cell.AVAILABLE:
                         newCellState = GAME_CONSTANTS.CELL_STATE.EMPTY;
                         break;
                 }
                 cells[i][j] = newCellState;
             }
         }
-
         // update neighbours
-        var xxzc = [], xxzc_new = [], oozc = [], oozc_new = [],
-            xStateToState = {}, oStateToState = {};
-        xStateToState[GAME_CONSTANTS.CELL_STATE.EMPTY.toString()] = GAME_CONSTANTS.CELL_STATE.X_AVAILABLE;
-        xStateToState[GAME_CONSTANTS.CELL_STATE.X_ZOMBIE.toString()] = GAME_CONSTANTS.CELL_STATE.X_ZOMBIE_CONNECTED;
-        xStateToState[GAME_CONSTANTS.CELL_STATE.O.toString()] = GAME_CONSTANTS.CELL_STATE.O_TARGET;
-
-        oStateToState[GAME_CONSTANTS.CELL_STATE.EMPTY.toString()] = GAME_CONSTANTS.CELL_STATE.O_AVAILABLE;
-        oStateToState[GAME_CONSTANTS.CELL_STATE.O_ZOMBIE.toString()] = GAME_CONSTANTS.CELL_STATE.O_ZOMBIE_CONNECTED;
-        oStateToState[GAME_CONSTANTS.CELL_STATE.X.toString()] = GAME_CONSTANTS.CELL_STATE.X_TARGET;
+        var zz_c = [], zz_c_new = [],
+            stateToState = {};
+        stateToState[GAME_CONSTANTS.CELL_STATE.EMPTY.toString()] = player_cell.AVAILABLE;
+        stateToState[player_cell.ZOMBIE.toString()] = player_cell.ZOMBIE_CONNECTED;
+        stateToState[enemy_cell.ALIVE.toString()] = enemy_cell.TARGET;
 
         var updateNeighbours = function (ix, jx, stateToState, zzc = [], zzc_new = []) {
             for (i = Math.max(ix - 1, 0); i < Math.min(ix + 2, GAME_CONSTANTS.N); i++) {
@@ -187,14 +175,14 @@ var Board = React.createClass({
             }
         };
 
-        xx.forEach(x=> updateNeighbours(x[0], x[1], xStateToState, xxzc, xxzc_new));
-        oo.forEach(o=> updateNeighbours(o[0], o[1], oStateToState, oozc, oozc_new));
+        vv.forEach(v=> updateNeighbours(v[0], v[1], stateToState, zz_c, zz_c_new));
 
-        cells[0][0] = cells[0][0] || GAME_CONSTANTS.CELL_STATE.X_AVAILABLE;
-        cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] = cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] || GAME_CONSTANTS.CELL_STATE.O_AVAILABLE;
-        this.setState({cells: cells});
+        cells[0][0] = cells[0][0] || GAME_CONSTANTS.CELL_STATE.X.AVAILABLE;
+        cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] = cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] || GAME_CONSTANTS.CELL_STATE.O.AVAILABLE;
+        //this.setState({cells: cells});
     },
     render: function () {
+        this.refreshAvailableCells();
         var self = this,
             cellNodes = [];
 

@@ -162,22 +162,30 @@ var Board = React.createClass({
         stateToState[player_cell.ZOMBIE.toString()] = player_cell.ZOMBIE_CONNECTED;
         stateToState[enemy_cell.ALIVE.toString()] = enemy_cell.TARGET;
         //console.log(stateToState);
-        var updateNeighbours = function (ix, jx, stateToState, zzc = [], zzc_new = []) {
+        var updateNeighbours = function (ix, jx, stateToState, zzc = []) {
             for (i = Math.max(ix - 1, 0); i < Math.min(ix + 2, GAME_CONSTANTS.N); i++) {
                 for (j = Math.max(jx - 1, 0); j < Math.min(jx + 2, GAME_CONSTANTS.N); j++) {
                     //console.log(i, j);
-                    if ((i == ix) && (j == jx)) {
-                        console.log(i, ix, j, jx);
+                    if ((i === ix) && (j === jx)) {
                         continue;
                     }
                     if (stateToState.hasOwnProperty(cells[i][j].toString())) {
+                        if (cells[i][j] === player_cell.ZOMBIE) {
+                            zzc.push([i, j]);
+                        }
                         cells[i][j] = stateToState[cells[i][j].toString()];
                     }
                 }
             }
         };
 
-        vv.forEach(v=> updateNeighbours(v[0], v[1], stateToState, zz_c, zz_c_new));
+        vv.forEach(v=> updateNeighbours(v[0], v[1], stateToState, zz_c_new));
+        while (zz_c_new.length) {
+            zz_c = zz_c_new;
+            zz_c_new = [];
+            zz_c.forEach(v=> updateNeighbours(v[0], v[1], stateToState, zz_c_new));
+        }
+
 
         cells[0][0] = cells[0][0] || GAME_CONSTANTS.CELL_STATE.X.AVAILABLE;
         cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] = cells[GAME_CONSTANTS.N - 1][GAME_CONSTANTS.N - 1] || GAME_CONSTANTS.CELL_STATE.O.AVAILABLE;

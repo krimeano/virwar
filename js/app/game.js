@@ -31,6 +31,7 @@ class Virus {
             throw "Species should be in set " + JSON.stringify(this.constructor.SPECIES);
         }
         this.species = bySpecies;
+        this.isDead = true;
     }
 
     wakeUp() {

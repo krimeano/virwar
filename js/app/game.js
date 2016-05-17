@@ -91,40 +91,58 @@ var Game = React.createClass({
                     currentSpecies: newSpecies,
                     turnsLeft: turnsLeft || this.props.turns
                 };
-            console.log(newState);
+            //console.log(newState);
             this.setState(newState);
         },
-        refreshCells: function () {
-            console.log('refreshCells');
-            var ix = this.state.cells.length,
-                cell;
-            while (ix--) {
-                cell = this.state.cells[ix];
-                cell.isPermitted = false;
-                cell.isReachable = false;
-            }
-
-            return this.updateCellsPermitted();
+        filterSurroundCells: function (x, y) {
+            return (y.i >= x.i - 1) && (y.i <= x.i + 1) && (y.j >= x.j - 1) && (y.j <= x.j + 1);
         },
-        updateCellsPermitted: function () {
+        refreshCells: function (cells) {
+            cells.forEach(x=> {
+                x.isPermitted = false;
+                x.isReachable = false;
+                x.virus && x.virus.isDead && x.virus.lull();
+            });
+
+            return this.updateZombies(cells);
+        },
+        updateZombies: function (cells) {
+            var infectionWave = cells.filter(x => (x.virus && !x.virus.isDead));
+
+            while (infectionWave.length) {
+                var newZombies = [];
+                infectionWave.forEach(x=> {
+                    var deadToMakeZombies = cells.filter(y=>this.filterSurroundCells(x, y))
+                        .filter(y=>(y.virus && y.virus.species === x.virus.species && y.virus.isDead && !y.virus.isZombie));
+                    deadToMakeZombies.forEach(y=> y.virus.wakeUp());
+                    newZombies = newZombies.concat(deadToMakeZombies)
+                });
+                infectionWave = newZombies;
+            }
+            return this.updateCellsPermitted(cells);
+        },
+        updateCellsPermitted: function (cells) {
             var corners = [0, this.props.size - 1],
-                infectedCells = this.state.cells.filter(x => (x.virus && x.virus.species === this.state.currentSpecies));
+                cellDeadAny = cells.filter(x => x.virus && x.virus.isDead),
+                infectedCells = cells.filter(x => (x.virus && x.virus.species === this.state.currentSpecies && (!x.virus.isDead || x.virus.isZombie)));
+
             //console.log(infectedCells);
-            if (!infectedCells.length) {
-                this.state.cells
-                    .filter(x => (corners.indexOf(x.i) >= 0 && corners.indexOf(x.j) >= 0 && !x.virus))
+            if (!infectedCells.length && !cellDeadAny.length) {
+                cells.filter(x => (corners.indexOf(x.i) >= 0 && corners.indexOf(x.j) >= 0 && !x.virus))
                     .forEach(x => x.isPermitted = true);
             }
-            infectedCells.forEach(x=> {
-                this.state.cells
-                    .filter(y=>((y.i >= x.i - 1) && (y.i <= x.i + 1) && (y.j >= x.j - 1) && (y.j <= x.j + 1) && !(y.virus && (y.virus.isDead || y.virus.species === this.state.currentSpecies))))
-                    .forEach(y=>y.isPermitted = true);
-            });
-            return this.state.cells;
+            else {
+                infectedCells.forEach(x=> {
+                    cells.filter(y=>this.filterSurroundCells(x, y))
+                        .filter(y=>!(y.virus && (y.virus.isDead || y.virus.species === this.state.currentSpecies)))
+                        .forEach(y=>y.isPermitted = true);
+                });
+            }
+            return cells;
         },
         getCellNodes: function () {
             var self = this;
-            return this.refreshCells().map(x => (
+            return this.refreshCells(this.state.cells).map(x => (
                 <BoardCell cell={x} width={self.props.cellWidth} key={x.i + '-' + x.j} onCellClick={this.handleCellClick}/>
             ))
         },
@@ -145,15 +163,17 @@ var Game = React.createClass({
             this.props.onCellClick(this.props.cell)
         },
         render: function () {
-            var classes = ["cell"];
-            if (this.props.cell.isPermitted) {
+            var classes = ["cell"],
+                cell = this.props.cell;
+            if (cell.isPermitted) {
                 classes.push("permitted");
             }
-            if (this.props.cell.virus) {
-                classes.push("virus-" + this.props.cell.virus.species);
-                if (this.props.cell.virus.isDead) {
+            if (cell.virus) {
+                classes.push("virus-" + cell.virus.species);
+                if (cell.virus.isDead) {
                     classes.push("dead");
-                    if (this.props.cell.virus.isZombie) {
+                    if (cell.virus.isZombie) {
+                        //console.log('zombie', cell);
                         classes.push("zombie");
                     }
                 } else {
@@ -162,10 +182,10 @@ var Game = React.createClass({
             }
             return (<div className={classes.join(" ")}
                          style={{
-                         top: (this.props.width * this.props.cell.i) +"px",
-                         left: (this.props.width * this.props.cell.j) + "px"
+                         top: (this.props.width * cell.i) +"px",
+                         left: (this.props.width * cell.j) + "px"
                          }}
-                         onClick={this.props.cell.isPermitted && this.handleClick}
+                         onClick={cell.isPermitted && this.handleClick}
             ></div>);
         }
     }),

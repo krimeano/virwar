@@ -213,6 +213,24 @@
         border-radius: 5px;
       }
     }
+    &.dead {
+      &:before, &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        border: 10px solid @color-x-zombie;
+        border-radius: 20px;
+        width: 20px;
+        height: 10px;
+        top: 10px;
+        left: 5px;
+      }
+      &.zombie {
+        &:before, &:after {
+          background: @color-x;
+        }
+      }
+    }
   }
   &.virus-O {
     &.alive {
@@ -226,6 +244,26 @@
         height: 20px;
         top: 5px;
         left: 5px;
+      }
+    }
+    &.dead {
+      &:before, &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        background: @color-o-zombie;
+        top: 15px;
+        left: 5px;
+        width: 40px;
+        height: 20px;
+        border-radius: 10px;
+      }
+      &.zombie{
+        &:before, &:after {
+          border: 6px solid @color-o;
+          width: 28px;
+          height: 8px;
+        }
       }
     }
   }
@@ -247,6 +285,7 @@
           height: 5px;
           border-radius: 3px;
           opacity: .5;
+          border: none;
         }
       }
     }
@@ -257,6 +296,25 @@
   .cell {
     &.permitted {
       box-shadow: 0 0 4px 1px @color-o inset;
+      &:hover {
+        &:before {
+          content: '';
+          display: block;
+          position: absolute;
+          border: 5px solid @color-o;
+          border-radius: 10px;
+          width: 10px;
+          height: 10px;
+          top: 15px;
+          left: 15px;
+          opacity: .8;
+          background: transparent;
+        }
+        &:after {
+          display: none;
+        }
+      }
     }
+
   }
 }

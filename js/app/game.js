@@ -134,7 +134,7 @@ var Game = React.createClass({
                 var newReachableCells = [];
                 infectionWave.forEach(x=> {
                     var pretendRealm = cells.filter(y=>this.filterSurroundCells(x, y) && !y.reachableBy[species])
-                        .filter(y=>(!y.virus || (y.virus.species === species)));
+                        .filter(y=>(!y.virus || !y.virus.isDead || y.virus.species === species));
                     pretendRealm.forEach(x=> x.reachableBy[species] = true);
                     newReachableCells = newReachableCells.concat(pretendRealm);
                 });

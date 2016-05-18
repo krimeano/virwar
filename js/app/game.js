@@ -55,7 +55,7 @@ class Cell {
         this.j = j;
         this.virus = virus || null;
         this.isPermitted = false;
-        this.isReachable = false;
+        this.reachableBy = {};
     }
 }
 
@@ -100,7 +100,7 @@ var Game = React.createClass({
         refreshCells: function (cells) {
             cells.forEach(x=> {
                 x.isPermitted = false;
-                x.isReachable = false;
+                x.reachableBy = {};
                 x.virus && x.virus.isDead && x.virus.lull();
             });
 
@@ -119,6 +119,33 @@ var Game = React.createClass({
                 });
                 infectionWave = newZombies;
             }
+            return this.updateReachable(cells);
+        },
+        updateReachableBySpecies: function (species, cells) {
+            return;
+            var deadViruses = cells.filter(x => (x.virus && x.virus.isDead && x.virus.species !== species)),
+                infectionWave = cells.filter(x => (x.virus && !x.virus.isDead && x.virus.species === species));
+            if (!(infectionWave.length + deadViruses.length)) {
+                var corners = [0, this.props.size - 1];
+                infectionWave = cells.filter(x => (corners.indexOf(x.i) >= 0 && corners.indexOf(x.j) >= 0 && !x.virus))
+            }
+            //console.log(species, infectionWave);
+            infectionWave.forEach(x=> x.reachableBy[species] = true);
+            while (infectionWave.length) {
+                var newReachableCells = [];
+                infectionWave.forEach(x=> {
+                    var pretendRealm = cells.filter(y=>this.filterSurroundCells(x, y) && !y.reachableBy[species])
+                        .filter(y=>(!y.virus || (y.virus.species === species)));
+                    newReachableCells = newReachableCells.concat(pretendRealm);
+                });
+                newReachableCells.forEach(x=> x.reachableBy[species] = true);
+                //console.log(species, newReachableCells.map(x=>[x.i, x.j].join('-')));
+                //infectionWave = [];
+                infectionWave = newReachableCells;
+            }
+        },
+        updateReachable: function (cells) {
+            Virus.SPECIES.forEach(x => this.updateReachableBySpecies(x, cells));
             return this.updateCellsPermitted(cells);
         },
         updateCellsPermitted: function (cells) {
@@ -180,6 +207,12 @@ var Game = React.createClass({
                     classes.push("alive");
                 }
             }
+            Object.keys(cell.reachableBy).forEach(x => {
+                if (cell.reachableBy[x]) {
+                    classes.push("reachable-" + x)
+                }
+
+            });
             return (<div className={classes.join(" ")}
                          style={{
                          top: (this.props.width * cell.i) +"px",

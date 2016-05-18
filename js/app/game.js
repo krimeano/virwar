@@ -289,8 +289,8 @@ var Game = React.createClass({
             });
             return (<div className={classes.join(" ")}
                          style={{
-                         top: (this.props.width * cell.i) +"px",
-                         left: (this.props.width * cell.j) + "px"
+                         top: (this.props.width * cell.i) +"em",
+                         left: (this.props.width * cell.j) + "em"
                          }}
                          onClick={cell.isPermitted && this.handleClick}
             ></div>);
@@ -320,4 +320,4 @@ var Game = React.createClass({
         }
     });
 
-ReactDOM.render(<Game size={11} turns={3} cellWidth={50}/>, document.getElementById('container'));
+ReactDOM.render(<Game size={11} turns={3} cellWidth={5}/>, document.getElementById('container'));

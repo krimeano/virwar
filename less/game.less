@@ -1,5 +1,4 @@
 .game {
-  border: 1px solid black;
   padding: @game-padding;
 }
 
@@ -10,16 +9,17 @@
   width: @board-w;
   height: @board-w;
   border: @board-border solid @color-cell-border;
-  border-radius: 14px;
+  border-radius: @board-border + 0.8em;
 }
 
 .cell {
   position: absolute;
-  width: @cell-w - 2px;
-  height: @cell-w - 2px;
-  border: 1px solid @color-cell-border;
+  width: @cell-w;
+  height: @cell-w;
+  //border: .1em solid @color-cell-border;
+  box-shadow: 0 0 0.4em 0.1em @color-cell-border inset;
   background: @bg-board;
-  border-radius: 10px;
+  border-radius: 1em;
   &.survived {
     background: #BAFF93;
   }
@@ -43,11 +43,11 @@
         display: block;
         position: absolute;
         background: @color-x;
-        top: 20px;
+        top: 2em;
         left: 0;
-        width: 50px;
-        height: 10px;
-        border-radius: 5px;
+        width: 5em;
+        height: 1em;
+        border-radius: 0.5em;
       }
     }
     &.dead {
@@ -55,12 +55,12 @@
         content: '';
         display: block;
         position: absolute;
-        border: 10px solid @color-x-zombie;
-        border-radius: 20px;
-        width: 20px;
-        height: 10px;
-        top: 10px;
-        left: 5px;
+        border: 1em solid @color-x-zombie;
+        border-radius: 2em;
+        width: 2em;
+        height: 1em;
+        top: 1em;
+        left: .5em;
       }
       &.zombie {
         &:before, &:after {
@@ -75,12 +75,12 @@
         content: '';
         display: block;
         position: absolute;
-        border: 10px solid @color-o;
-        border-radius: 20px;
-        width: 20px;
-        height: 20px;
-        top: 5px;
-        left: 5px;
+        border: 1em solid @color-o;
+        border-radius: 2em;
+        width: 2em;
+        height: 2em;
+        top: .5em;
+        left: .5em;
       }
     }
     &.dead {
@@ -89,17 +89,17 @@
         display: block;
         position: absolute;
         background: @color-o-zombie;
-        top: 15px;
-        left: 5px;
-        width: 40px;
-        height: 20px;
-        border-radius: 10px;
+        top: 1.5em;
+        left: .5em;
+        width: 4em;
+        height: 2em;
+        border-radius: 1em;
       }
       &.zombie {
         &:before, &:after {
-          border: 6px solid @color-o;
-          width: 28px;
-          height: 8px;
+          border: .6em solid @color-o;
+          width: 2.8em;
+          height: .8em;
         }
       }
     }
@@ -109,18 +109,18 @@
 .species-X {
   .cell {
     &.permitted {
-      box-shadow: 0 0 4px 1px @color-x inset;
+      box-shadow: 0 0 .4em .1em @color-x inset;
       &.empty:hover {
         &:before, &:after {
           content: '';
           display: block;
           position: absolute;
           background: @color-x;
-          top: 23px;
-          left: 15px;
-          width: 20px;
-          height: 5px;
-          border-radius: 3px;
+          top: 2.3em;
+          left: 1.5em;
+          width: 2em;
+          height: .5em;
+          border-radius: .3em;
           opacity: .5;
           border: none;
         }
@@ -132,18 +132,18 @@
 .species-O {
   .cell {
     &.permitted {
-      box-shadow: 0 0 4px 1px @color-o inset;
+      box-shadow: 0 0 .4em .1em @color-o inset;
       &.empty:hover {
         &:before {
           content: '';
           display: block;
           position: absolute;
-          border: 5px solid @color-o;
-          border-radius: 10px;
-          width: 10px;
-          height: 10px;
-          top: 15px;
-          left: 15px;
+          border: .5em solid @color-o;
+          border-radius: 1em;
+          width: 1em;
+          height: 1em;
+          top: 1.5em;
+          left: 1.5em;
           opacity: .8;
           background: transparent;
         }
@@ -154,4 +154,8 @@
     }
 
   }
+}
+
+.info{
+  font-size: 4em;
 }

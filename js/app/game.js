@@ -95,7 +95,7 @@ var Game = React.createClass({
             this.setState(newState);
         },
         filterSurroundCells: function (x, y) {
-            return (y.i >= x.i - 1) && (y.i <= x.i + 1) && (y.j >= x.j - 1) && (y.j <= x.j + 1);
+            return (y.i >= x.i - 1) && (y.i <= x.i + 1) && (y.j >= x.j - 1) && (y.j <= x.j + 1) && !((x.i === y.i) && (x.j === y.j));
         },
         refreshCells: function (cells) {
             cells.forEach(x=> {
@@ -122,25 +122,21 @@ var Game = React.createClass({
             return this.updateReachable(cells);
         },
         updateReachableBySpecies: function (species, cells) {
-            return;
             var deadViruses = cells.filter(x => (x.virus && x.virus.isDead && x.virus.species !== species)),
                 infectionWave = cells.filter(x => (x.virus && !x.virus.isDead && x.virus.species === species));
             if (!(infectionWave.length + deadViruses.length)) {
                 var corners = [0, this.props.size - 1];
                 infectionWave = cells.filter(x => (corners.indexOf(x.i) >= 0 && corners.indexOf(x.j) >= 0 && !x.virus))
             }
-            //console.log(species, infectionWave);
             infectionWave.forEach(x=> x.reachableBy[species] = true);
             while (infectionWave.length) {
                 var newReachableCells = [];
                 infectionWave.forEach(x=> {
                     var pretendRealm = cells.filter(y=>this.filterSurroundCells(x, y) && !y.reachableBy[species])
                         .filter(y=>(!y.virus || (y.virus.species === species)));
+                    pretendRealm.forEach(x=> x.reachableBy[species] = true);
                     newReachableCells = newReachableCells.concat(pretendRealm);
                 });
-                newReachableCells.forEach(x=> x.reachableBy[species] = true);
-                //console.log(species, newReachableCells.map(x=>[x.i, x.j].join('-')));
-                //infectionWave = [];
                 infectionWave = newReachableCells;
             }
         },

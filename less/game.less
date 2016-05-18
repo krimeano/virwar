@@ -110,7 +110,7 @@
   .cell {
     &.permitted {
       box-shadow: 0 0 4px 1px @color-x inset;
-      &:hover {
+      &.empty:hover {
         &:before, &:after {
           content: '';
           display: block;
@@ -133,7 +133,7 @@
   .cell {
     &.permitted {
       box-shadow: 0 0 4px 1px @color-o inset;
-      &:hover {
+      &.empty:hover {
         &:before {
           content: '';
           display: block;

@@ -18,6 +18,7 @@ class Virus {
         this.species = species;
         this.isDead = false;
         this.isZombie = false;
+        this.isSurvived = false;
     }
 
     kill(bySpecies) {
@@ -119,7 +120,7 @@ var Game = React.createClass({
                 });
                 infectionWave = newZombies;
             }
-            return this.updateReachable(cells);
+            return this.updateSurvived(cells);
         },
         updateReachableBySpecies: function (species, cells) {
             var deadViruses = cells.filter(x => (x.virus && x.virus.isDead && x.virus.species !== species)),
@@ -140,8 +141,25 @@ var Game = React.createClass({
                 infectionWave = newReachableCells;
             }
         },
-        updateReachable: function (cells) {
+        updateSurvivedBySpecies: function (species, cells) {
+            //console.log(species, infectedCells.map(x=>JSON.stringify([x.i, x.j])));
+        },
+        updateSurvived: function (cells) {
             Virus.SPECIES.forEach(x => this.updateReachableBySpecies(x, cells));
+            var infectedCells = cells.filter(x => (x.virus && !x.virus.isDead))
+                .forEach(x=> {
+                    var isSurvived = true;
+                    Object.keys(x.reachableBy).forEach(r=> {
+                        if (r === x.virus.species) {
+                            return;
+                        }
+                        if (x.reachableBy[r]) {
+                            isSurvived = false;
+                            return false;
+                        }
+                    });
+                    x.virus.isSurvived = isSurvived;
+                });
             return this.updateCellsPermitted(cells);
         },
         updateCellsPermitted: function (cells) {
@@ -201,6 +219,9 @@ var Game = React.createClass({
                     }
                 } else {
                     classes.push("alive");
+                    if (cell.virus.isSurvived) {
+                        classes.push("survived");
+                    }
                 }
             }
             Object.keys(cell.reachableBy).forEach(x => {

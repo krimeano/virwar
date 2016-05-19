@@ -94,7 +94,8 @@ var Game = React.createClass({
                 newSpecies = turnsLeft ? this.state.currentSpecies : Virus.nextSpecies(this.state.currentSpecies),
                 newState = {
                     currentSpecies: newSpecies,
-                    turnsLeft: turnsLeft || this.props.turns
+                    turnsLeft: turnsLeft || this.props.turns,
+                    passes: 0
                 };
             //console.log(newState);
             this.setState(newState);
@@ -247,9 +248,11 @@ var Game = React.createClass({
                 <Info currentSpecies={this.state.currentSpecies} turnsLeft={this.state.turnsLeft}
                       survivedSpecies={Object.keys(survivedSpecies)} isStalemate={this.state.isStalemate}
                       winner={this.state.winner}/>
-                {passButton}
-                {surrenderButton}
-                {resetButton}
+                <div className="buttons">
+                    {passButton}
+                    {surrenderButton}
+                    {resetButton}
+                </div>
             </div>);
         }
     }),

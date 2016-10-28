@@ -1,5 +1,12 @@
 # Viruses war
 
+## Installation instructions
+
+1. Clone or download files from the repository to some folder on your webserver
+1. Run LESS compiler to translate styles form _less/main.less_ to _css/main.css_
+1. Open in browser
+1. Enjoy!
+
 ## Rules
 
 * The game is for two players
